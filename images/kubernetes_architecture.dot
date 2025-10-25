@@ -1,0 +1,63 @@
+digraph k8s_arch {
+  compound=true
+  fontname="Fira Sans"
+  ranksep=0.7
+  style="rounded"
+  edge [
+    arrowsize=0.8
+    arrowtail="empty"
+    dir="both"
+    fontname="Fira Sans"
+  ]
+  node [
+    fontname="Fira Sans"
+  ]
+
+  subgraph cluster_control_plane {
+    label = "Control Plane"
+    color = "lightskyblue"
+    etcd [shape="cylinder"]
+    kube_api_server [label="kube-\napi-server"]
+    kube_controller_manager [label="Controller\nManager"]
+    kube_scheduler [label="Scheduler"]
+    kube_scheduler -> kube_api_server
+    // invert to achieve better node placement
+    kube_api_server -> kube_controller_manager [arrowhead="empty", arrowtail="normal"]
+    etcd -> kube_api_server [arrowhead="empty", arrowtail="normal"]
+  }
+
+  subgraph cluster_worker {
+    label = "Worker Node"
+    color = "lightskyblue"
+    kubelet [label="Kubelet"]
+    kube_proxy [label="kube-proxy"]
+    runtime [label="Container\nRuntime"]
+
+    subgraph cluster_pod1 {
+      label="Pod"
+      color = "black"
+      bgcolor = "lightcyan"
+      container1 [label="Container" style="filled" fillcolor = "lightblue1"]
+      container2 [label="Container" style="filled" fillcolor = "lightblue1"]
+      container1 -> container2 [arrowtail="normal"]
+    }
+
+    subgraph cluster_pod2 {
+      label="Pod"
+      color = "black"
+      bgcolor = "lightcyan"
+      container3 [label="Container" style="filled" fillcolor = "lightblue1"]
+      container4 [label="Container" style="filled" fillcolor = "lightblue1"]
+      container3 -> container4 [arrowtail="normal"]
+    }
+
+    kubelet -> runtime
+    runtime -> container1 [lhead="cluster_pod1" samehead="container1"]
+    runtime -> container3 [lhead="cluster_pod2" samehead="container3"]
+    kube_proxy -> container1 [lhead="cluster_pod1" samehead="container1"]
+    kube_proxy -> container3 [lhead="cluster_pod2" samehead="container3"]
+  }
+
+  kubelet -> kube_api_server
+  kube_proxy -> kube_api_server
+}

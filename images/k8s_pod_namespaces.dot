@@ -1,0 +1,79 @@
+digraph k8s_pod {
+  compound=true
+  fontname="Fira Sans"
+  rankdir="LR"
+  style="rounded"
+  edge [
+    arrowsize=0.8
+    dir="both"
+    fontname="Fira Sans"
+  ]
+  node [
+    fontname="Fira Sans"
+    fillcolor = "white"
+    style="filled"
+    shape="rect"
+  ]
+
+  subgraph cluster_pod1 {
+    label = "Pod:\nnetwork, ipc"
+    bgcolor = "lightcyan"
+
+    subgraph cluster_container1 {
+      label = "Container:\ncgroup, mount, pid, user"
+      bgcolor = "lightblue1"
+      rank = "same"
+      process1 [label="Prozess(e)"]
+    }
+
+    subgraph cluster_localhost1 {
+      label=""
+      style="invis"
+      localhost1 [label="localhost" shape="plaintext" height=0.25 style="invis"]
+    }
+
+    subgraph cluster_container2 {
+      label = "Container:\ncgroup, mount, pid, user"
+      bgcolor = "lightblue1"
+      rank = "same"
+      process2 [label="Prozess(e)"]
+    }
+
+    veth1 [label="virt. Netzwerkinterface"]
+
+    process1 -> localhost1 [ltail="cluster_container1" dir="back" constraint=false]
+    localhost1 -> process2 [lhead="cluster_container2" dir="forward" constraint=false]
+  }
+
+  subgraph cluster_pod2 {
+    label = "Pod:\nnetwork, ipc"
+    bgcolor = "lightcyan"
+
+    subgraph cluster_container3 {
+      label = "Container:\ncgroup, mount, pid, user"
+      bgcolor = "lightblue1"
+      rank = "same"
+      process3 [label="Prozess(e)"]
+    }
+
+    subgraph cluster_localhost2 {
+      label=""
+      style="invis"
+      localhost2 [label="localhost" shape="plaintext" height=0.25 style="invis"]
+    }
+
+    subgraph cluster_container4 {
+      label = "Container:\ncgroup, mount, pid, user"
+      bgcolor = "lightblue1"
+      rank = "same"
+      process4 [label="Prozess(e)"]
+    }
+
+    veth2 [label="virt. Netzwerkinterface"]
+
+    process3 -> localhost2 [ltail="cluster_container3" dir="back" constraint=false]
+    localhost2 -> process4 [lhead="cluster_container4" dir="forward" constraint=false]
+  }
+
+  veth1 -> veth2
+}
