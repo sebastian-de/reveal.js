@@ -1,0 +1,43 @@
+digraph risk_management {
+  fontname="Fira Sans"
+  style="rounded,dashed"
+  ranksep=0.6
+  edge [
+    arrowsize=0.8
+    fontname="Fira Sans"
+    fontsize=9.0
+  ]
+  node [
+    fontname="Fira Sans"
+  ]
+
+  subgraph cluster_risk_analysis {
+    label = "Bedrohungs- und Risikoanalyse"
+    color="lightsalmon"
+
+    threats [label="Bedrohungen" color="red"]
+    assets [label="Schutzziele"]
+    risks [label="Risiken"]
+    system [label="System\n(Modell)" color="blue"]
+
+    threats -> assets [label="betreffen"]
+    threats -> risks [label="verursachen"]
+    assets -> risks [label="bestimmen"]
+    threats -> system [label="interagieren mit"]
+  }
+
+  subgraph cluster_risk_treatment {
+    label = "Risikobehandlung"
+    color="lightgreen"
+
+    security_concept [label="Sicherheitskonzept" color="green"]
+    security_mitigations [label="Sicherheitsmaßnahmen"]
+
+    security_concept -> security_mitigations [label="setzt um"]
+  }
+
+  risks -> security_mitigations [xlabel="führen zu"]
+  security_concept -> threats [label="wirkt gegen"]
+  security_mitigations -> risks [label="verringern"]
+  security_concept -> system [xlabel="beeinflusst"]
+}

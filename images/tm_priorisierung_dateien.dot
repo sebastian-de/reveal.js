@@ -1,0 +1,57 @@
+digraph priorisierung {
+  fontname="Fira Sans"
+  ranksep=0.6
+  nodesep=0.3
+  edge [fontname="Fira Sans", fontsize=9, arrowsize=0.8]
+  node [fontname="Fira Sans"]
+
+  subgraph cluster_threats {
+    label = "threats.csv"
+    shape = "note"
+    color = "lightsalmon"
+
+    tm_threats [label="Bedrohungen aus\nThreat Matrix"]
+    applicable [label="Anwendbarkeit"]
+    primary [label="primär betroffene\nKomponente"]
+
+    tm_threats -> applicable -> primary
+  }
+
+  subgraph cluster_mitigations {
+    label = "mitigations.csv"
+    color = "lightgreen"
+
+    tm_mitigations [label="Maßnahmen aus\nThreat Matrix"]
+    builtin [label="nativ\nvorhanden"]
+    implemented [label="Stand der\nUmsetzung"]
+
+    tm_mitigations -> builtin -> implemented
+  }
+
+  subgraph cluster_level {
+    label = "protection_levels.csv"
+    color = "lightblue"
+
+    schutzbedarf [label="C, I, A pro\nKomponente"]
+  }
+
+  subgraph cluster_script {
+    label = "scoring.py ausführen"
+    color = "darkgoldenrod"
+    style = "rounded,dashed"
+
+    step_threat [label="Pro Bedrohung:\nScore = max(C, I, A) der primär\n betroffenen Komponente", shape=box, style="rounded,filled", fillcolor="lightyellow"]
+    step_mit [label="Pro nicht umgesetzter Maßnahme:\nSumme der Scores über alle\nadressierten und anwendbaren\nBedrohungen", shape=box, style="rounded,filled", fillcolor="lightyellow"]
+    step_sort [label="Absteigend nach\nGesamt-Score sortieren", shape=box, style="rounded,filled", fillcolor="lightyellow"]
+
+    step_threat -> step_mit -> step_sort
+  }
+
+  output [label="scoring.csv", shape=box, color="darkgreen"]
+
+  primary -> step_threat [constraint=false]
+  implemented -> step_mit [constraint=false]
+  schutzbedarf -> step_threat
+
+  step_sort -> output
+}

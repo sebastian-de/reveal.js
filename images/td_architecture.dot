@@ -1,0 +1,83 @@
+digraph td_arch {
+  fontname="Fira Sans"
+  fontsize="12"
+  ranksep=0.4
+  rankdir="LR"
+  style="rounded"
+  edge [
+    arrowsize=0.6
+    arrowtail="empty"
+    dir="both"
+    fontname="Fira Sans"
+    fontsize="8"
+  ]
+  node [
+    fontname="Fira Sans"
+    fontsize="10"
+  ]
+
+  subgraph cluster_k8s {
+    label="Kubernetes-Cluster"
+    color="lightskyblue"
+    style="rounded"
+    bgcolor="grey98"
+
+    subgraph cluster_therapymanager {
+      label="TherapyManager"
+      color="grey70"
+      style="rounded,dashed"
+      bgcolor="white"
+
+      tm_backend [label="TherapyManager\nBackend"]
+      hasura [label="Hasura"]
+      hasura_db [label="PostgreSQL\n(Hasura)" shape="cylinder"]
+    }
+
+    subgraph cluster_keycloak {
+      label="Keycloak"
+      color="grey70"
+      style="rounded,dashed"
+      bgcolor="white"
+
+      keycloak [label="Keycloak"]
+      keycloak_db [label="PostgreSQL\n(Keycloak)" shape="cylinder"]
+    }
+
+    subgraph cluster_executor {
+      label="TherapyExecutor (pro Studie)"
+      color="grey70"
+      style="rounded,dashed"
+      bgcolor="white"
+
+      executor [label="TherapyExecutor"]
+      executor_db [label="PostgreSQL\n(Executor)" shape="cylinder"]
+    }
+
+  }
+
+  // Clients
+  therapy_app [label="TherapyApp"]
+  tm_frontend [label="TherapyManager\nFrontend"]
+
+  // Client -> Server
+  therapy_app -> executor [label="Client\nREST API"]
+  therapy_app -> keycloak [label="Authentifizierung"]
+  therapy_app -> hasura [label="GraphQL" constraint=false]
+
+  // TherapyManager Frontend
+  tm_frontend -> hasura [label="GraphQL" constraint=false]
+  tm_frontend -> keycloak [label="Authentifizierung"]
+
+  // TherapyManager Backend
+  hasura -> tm_backend [label="Actions/\nEvents" dir="forward"]
+  tm_backend -> hasura [label="GraphQL" constraint=false]
+  tm_backend -> executor [label="Admin\nREST API"]
+  tm_backend -> keycloak [label="Management\nREST API"]
+
+  // Datenzugriff
+  executor -> executor_db
+  hasura -> hasura_db
+  keycloak -> keycloak_db
+
+  //executor -> therapy_app [label="Push-\nNotification" style="dashed" dir="forward"]
+}
